@@ -51,7 +51,10 @@ class PublicacionView(viewsets.ModelViewSet):
                 )
         if request.method == 'DELETE':
 
-            
+            comentario_id = request.data['id']
+            print(comentario_id)
+            comentario = Comentario.objects.get(id=int(comentario_id))
+            comentario.delete()
 
             return Response(
                     status=status.HTTP_204_NO_CONTENT
