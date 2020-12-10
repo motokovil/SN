@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from .models import Tag
 from .serializers import TagSerializer
+from .pagination import MyPaginationClass
 
 from publicaciones.models import Publicacion
 from publicaciones.serializers import PublicacionSerializer
@@ -11,7 +12,19 @@ from publicaciones.serializers import PublicacionSerializer
 class TagView(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    pagination_class = MyPaginationClass
 
+    def get_queryset(self):
+        query ={}
+        for item in self.request.query_params:
+            if item in ['page_size','page']:
+                continue
+            if item in ['publicaciones']:
+                query[item+'__id'] = self.request.query_params[item]
+                continue
+            query[item+'__icontains'] = self.request.query_params[item]           
+        self.queryset = self.queryset.filter(**query)
+        return super().get_queryset()
     @action(methods=(['GET','POST','DELETE']), detail=True)
     def publicaciones(self,request,pk=None):
 

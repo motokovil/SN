@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from .models import Publicacion
 from .serializers import PublicacionSerializer
+from .pagination import MyPaginationClass
 
 from comentarios.serializers import ComentarioSerializer
 from tags.serializers import TagSerializer
@@ -15,6 +16,16 @@ from comentarios.models import Comentario
 class PublicacionView(viewsets.ModelViewSet):
     queryset = Publicacion.objects.all()
     serializer_class = PublicacionSerializer
+    pagination_class = MyPaginationClass
+
+    def get_queryset(self):
+        query = {}
+        for item in self.request.query_params:
+            if item in ['page_size', 'page']:
+                continue
+            query[item+'__icontains'] = self.request.query_params[item]
+        self.queryset = self.queryset.filter(**query)
+        return super().get_queryset()
     
     @action(methods=(['GET','POST','DELETE','PATCH']), detail=True)
     def comentarios(self,request,pk):
