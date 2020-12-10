@@ -8,9 +8,10 @@ from .serializers import PublicacionSerializer
 from .pagination import MyPaginationClass
 
 from comentarios.serializers import ComentarioSerializer
-from tags.serializers import TagSerializer
-
 from comentarios.models import Comentario
+
+from tags.serializers import TagSerializer
+from tags.models import Tag
 # Create your views here.
 
 class PublicacionView(viewsets.ModelViewSet):
@@ -59,12 +60,12 @@ class PublicacionView(viewsets.ModelViewSet):
 
         if request.method == 'DELETE':
             comentario_id = request.data['id']
-            print(comentario_id)
-            comentario = Comentario.objects.get(id=int(comentario_id))
+            comentario = Comentario.objects.get(id=comentario_id)
             comentario.delete()
             return Response(
                     status=status.HTTP_204_NO_CONTENT
                 )
+
         if request.method == 'PATCH':
             comentario_id = request.data['id']
             comentario = Comentario.objects.get(id=comentario_id)
@@ -83,6 +84,43 @@ class PublicacionView(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                     data=serialized.errors
                 )
+
+    @action(methods=(['GET','POST','DELETE']), detail=True)
+    def tags(self, request, pk=None):
+
+        publicacion = self.get_object()
+        if request.method == 'GET':
+            serialized = TagSerializer(publicacion.tags, many=True)
+            return Response(
+                status=status.HTTP_200_OK,
+                data=serialized.data
+            )
+
+        if request.method == 'POST':
+            tag = {
+                "nombre": request.data['nombre'],
+                "publicaciones": [publicacion.id]
+            }
+            serialized = TagSerializer(data=tag)
+            if serialized.is_valid():
+                serialized.save()
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=serialized.data
+                )
+            else:
+                return Response(
+                    status=status.HTTP_200_OK,
+                    data=serialized.errors
+                )
+
+        if request.method == 'DELETE':
+            tag_id = request.data['id']
+            tag = Tag.objects.get(id=tag_id)
+            tag.delete()
+            return Response(
+                status=status.HTTP_204_NO_CONTENT
+            )
 
 
 
