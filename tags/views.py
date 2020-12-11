@@ -11,10 +11,12 @@ from publicaciones.serializers import PublicacionSerializer
 
 class TagView(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
+    pagination_class = MyPaginationClass
     serializer_class = TagSerializer
     pagination_class = MyPaginationClass
 
     def get_queryset(self):
+<<<<<<< Updated upstream
         query ={}
         for item in self.request.query_params:
             if item in ['page_size','page']:
@@ -25,6 +27,12 @@ class TagView(viewsets.ModelViewSet):
             query[item+'__icontains'] = self.request.query_params[item]           
         self.queryset = self.queryset.filter(**query)
         return super().get_queryset()
+=======
+        for item in self.request.query_params:
+            print(self.request.query_params[item])
+        return super().get_queryset()
+
+>>>>>>> Stashed changes
     @action(methods=(['GET','POST','DELETE']), detail=True)
     def publicaciones(self,request,pk=None):
 
