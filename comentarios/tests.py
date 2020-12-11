@@ -20,9 +20,9 @@ class FiltrarComentarios(APITestCase):
         self.publicacion.tags.add(self.tag)
 
     def test_filter(self):
-        filtro = f'contenido={self.comentario.contenido}'
+        query = f'contenido={self.comentario.contenido}'
         response = self.client.get(
-            f'{self.url}comentarios/?{filtro}'
+            f'{self.url}comentarios/?{query}'
         )
         self.assertEqual(response.status_code,200)
         self.assertEqual(response.data['results'][0]['contenido'],self.comentario.contenido)
